@@ -25,12 +25,7 @@ CROSS_IMAGE = pg.image.load(os.path.join('assets', 'cross.png'))
 CROSS = pg.transform.scale(CROSS_IMAGE, (IMAGE_WIDTH, IMAGE_HEIGHT))
 
 FONT = pg.font.SysFont('comicsans', 100)
-
-BOARD = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0]
-]
+TURN_FONT = pg.font.SysFont('comicsans', 20)
 
 
 def draw_window():
@@ -92,14 +87,40 @@ def check_win():
     return winner
 
 
+def delay():
+    pg.display.update()
+    pg.time.delay(5000)
+    main()
+
+
+def draw_turn(text):
+    text_blit = TURN_FONT.render(text, True, BLACK)
+    WIN.blit(text_blit, (WIDTH//2 - text_blit.get_width()//2, 0))
+    pg.display.update()
+
+
+def cover_turn():
+    pg.draw.rect(WIN, WHITE, (210, 5, 150, 20))
+
+
 def main():
     clock = pg.time.Clock()
     count = 0
 
+    turn = ''
+
     draw_window()
     draw_grid()
 
+    global BOARD
+    BOARD = [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0]
+    ]
+
     running = True
+    draw_turn("X's turn")
     while running:
         clock.tick(FPS)
         for event in pg.event.get():
@@ -108,6 +129,9 @@ def main():
                 sys.exit()
             if event.type == pg.MOUSEBUTTONDOWN:
                 if count % 2 == 0:
+                    turn = "O's turn"
+                    cover_turn()
+                    draw_turn(turn)
                     count += 1
                     x_axis, y_axis = pg.mouse.get_pos()[0], pg.mouse.get_pos()[1]
                     if x_axis < WIDTH/3:
@@ -124,6 +148,7 @@ def main():
                         if y_axis < WIDTH/3 and BOARD[0][1] == 0:
                             draw_cross(205, 5)
                             BOARD[0][1] = 'X'
+                            draw_turn(turn)
                         elif WIDTH/3 < y_axis < WIDTH * (2/3) and BOARD[1][1] == 0:
                             draw_cross(205, 205)
                             BOARD[1][1] = 'X'
@@ -142,6 +167,9 @@ def main():
                             BOARD[2][2] = 'X'
                 elif count % 2 != 0:
                     count += 1
+                    turn = "X's turn"
+                    cover_turn()
+                    draw_turn(turn)
                     x_axis, y_axis = pg.mouse.get_pos()[0], pg.mouse.get_pos()[1]
                     if x_axis < WIDTH/3:
                         if y_axis < WIDTH/3 and BOARD[0][0] == 0:
@@ -157,6 +185,7 @@ def main():
                         if y_axis < WIDTH/3 and BOARD[0][1] == 0:
                             draw_circle(205, 5)
                             BOARD[0][1] = 'O'
+                            draw_turn(turn)
                         elif WIDTH/3 < y_axis < WIDTH * (2/3) and BOARD[1][1] == 0:
                             draw_circle(205, 205)
                             BOARD[1][1] = 'O'
@@ -179,16 +208,24 @@ def main():
                     winner_text = FONT.render(winner, True, BLACK)
                     WIN.blit(winner_text, (WIDTH//2 - winner_text.get_width()//2,
                                            HEIGHT//2 - winner_text.get_height()//2))
+                    delay()
+                    main()
+
                 elif winner == 'X':
                     text = f'{winner} wins!'
                     winner_text = FONT.render(text, True, BLACK)
                     WIN.blit(winner_text, (WIDTH // 2 - winner_text.get_width() // 2,
                                            HEIGHT // 2 - winner_text.get_height() // 2))
+                    delay()
+                    main()
+
                 elif winner == 'O':
                     text = f'{winner} wins!'
                     winner_text = FONT.render(text, True, BLACK)
                     WIN.blit(winner_text, (WIDTH // 2 - winner_text.get_width() // 2,
                                            HEIGHT // 2 - winner_text.get_height() // 2))
+                    delay()
+                    main()
 
         pg.display.update()
 
